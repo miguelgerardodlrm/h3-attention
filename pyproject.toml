@@ -35,12 +35,10 @@ sol = [
     "hyperflow-h3 @ git+https://github.com/HyperFlow-Sol/HyperFlow-H3.git",
 ]
 
-[project.entry-points]
-"comfyui.nodes" = [
-    "h3_attention_controller = comfyui_nodes.controller_node:H3AttentionControllerNode",
-    "h3_attention_settings = comfyui_nodes.settings_node:H3AttentionSettingsNode",
-    "h3_attention_debug = comfyui_nodes.debug_node:H3AttentionDebugNode",
-]
+[project.entry-points."comfyui.nodes"]
+h3_attention_controller = "comfyui_nodes.controller_node:H3AttentionControllerNode"
+h3_attention_settings = "comfyui_nodes.settings_node:H3AttentionSettingsNode"
+h3_attention_debug = "comfyui_nodes.debug_node:H3AttentionDebugNode"
 
 [tool.setuptools.packages.find]
 where = ["."]
