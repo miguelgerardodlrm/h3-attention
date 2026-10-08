@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "h3-attention"
+version = "0.1.0"
+description = "Attention control for MiniMax H3 to reduce hallucination, identity drift, and reference loss during inference"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.0",
+    "diffusers>=0.30",
+    "transformers>=4.40",
+    "accelerate>=0.30",
+    "numpy",
+    "einops",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "ruff",
+    "mypy",
+]
+comfyui = [
+    "comfyui>=0.3.0",
+]
+sage = [
+    "sageattention>=0.1.0",
+]
+sol = [
+    "hyperflow-h3 @ git+https://github.com/HyperFlow-Sol/HyperFlow-H3.git",
+]
+
+[project.entry-points]
+"comfyui.nodes" = [
+    "h3_attention_controller = comfyui_nodes.controller_node:H3AttentionControllerNode",
+    "h3_attention_settings = comfyui_nodes.settings_node:H3AttentionSettingsNode",
+    "h3_attention_debug = comfyui_nodes.debug_node:H3AttentionDebugNode",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["h3_attention*", "comfyui_nodes*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+lint.select = ["E", "F", "I", "W", "UP", "B", "C4", "ARG", "PTH", "T20", "SIM", "RET"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
