@@ -10,11 +10,34 @@ without retraining, targeting:
 - Temporal consistency
 """
 
+from .config import PRESETS
 from .controller import H3AttentionController, AttentionControlConfig
-from .processor import H3ControlledAttnProcessor, H3AttnProcessorWrapper
-from .scheduler import AttentionSchedule, SchedulePhase
-from .metrics import AttentionMetrics, compute_reference_affinity, compute_prompt_affinity
-from .comfyui import install_controller_on_model, remove_controller_from_model
+
+try:
+    # Requires diffusers (present in offline/Diffusers deployments and tests).
+    # ComfyUI runtimes may not have diffusers installed — never hard-fail.
+    from .processor import H3ControlledAttnProcessor, H3AttnProcessorWrapper
+except ImportError:  # pragma: no cover - environment dependent
+    H3ControlledAttnProcessor = None
+    H3AttnProcessorWrapper = None
+
+from .scheduler import AttentionSchedule, SchedulePhase, PhaseConfig, SCHEDULE_PRESETS
+from .metrics import (
+    AttentionMetrics,
+    compute_attention_metrics,
+    compute_reference_affinity,
+    compute_prompt_affinity,
+    compute_temporal_affinity,
+    compute_subject_separation,
+    aggregate_metrics,
+)
+from .comfyui import (
+    install_controller_on_model,
+    remove_controller_from_model,
+    install_comfyui,
+    MAX_CONTROLLED_SEQ,
+)
+from .native import NativeBiasPlanner, make_controlled_attention
 
 __version__ = "0.1.0"
 
@@ -25,9 +48,20 @@ __all__ = [
     "H3AttnProcessorWrapper",
     "AttentionSchedule",
     "SchedulePhase",
+    "PhaseConfig",
     "AttentionMetrics",
+    "compute_attention_metrics",
     "compute_reference_affinity",
     "compute_prompt_affinity",
+    "compute_temporal_affinity",
+    "compute_subject_separation",
+    "aggregate_metrics",
     "install_controller_on_model",
     "remove_controller_from_model",
+    "install_comfyui",
+    "MAX_CONTROLLED_SEQ",
+    "NativeBiasPlanner",
+    "make_controlled_attention",
+    "PRESETS",
+    "SCHEDULE_PRESETS",
 ]

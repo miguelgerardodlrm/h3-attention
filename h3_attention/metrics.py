@@ -203,14 +203,21 @@ def compute_reference_affinity(
     target_indices: torch.Tensor,
     reference_indices: torch.Tensor,
 ) -> float:
-    """Compute mean attention from target to reference tokens."""
+    """Fraction of the target's attention mass that flows to reference tokens.
+
+    Robust to target rows carrying zero attention (unlike a per-cell mean).
+    """
     if target_indices is None or reference_indices is None:
         return 0.0
     if len(target_indices) == 0 or len(reference_indices) == 0:
         return 0.0
 
-    tgt_to_ref = attn_weights[:, :, target_indices.unsqueeze(1), reference_indices.unsqueeze(0)]
-    return tgt_to_ref.mean().item()
+    ref_mass = attn_weights[:, :, target_indices.unsqueeze(1), reference_indices.unsqueeze(0)].sum(
+        dim=-1
+    )
+    total_mass = attn_weights[:, :, target_indices, :].sum(dim=-1)
+    denom = total_mass.sum().clamp(min=1e-8)
+    return (ref_mass.sum() / denom).clamp(0.0, 1.0).item()
 
 
 def compute_prompt_affinity(
@@ -218,14 +225,18 @@ def compute_prompt_affinity(
     target_indices: torch.Tensor,
     text_indices: torch.Tensor,
 ) -> float:
-    """Compute mean attention from target to text tokens."""
+    """Fraction of the target's attention mass that flows to text tokens."""
     if target_indices is None or text_indices is None:
         return 0.0
     if len(target_indices) == 0 or len(text_indices) == 0:
         return 0.0
 
-    tgt_to_txt = attn_weights[:, :, target_indices.unsqueeze(1), text_indices.unsqueeze(0)]
-    return tgt_to_txt.mean().item()
+    txt_mass = attn_weights[:, :, target_indices.unsqueeze(1), text_indices.unsqueeze(0)].sum(
+        dim=-1
+    )
+    total_mass = attn_weights[:, :, target_indices, :].sum(dim=-1)
+    denom = total_mass.sum().clamp(min=1e-8)
+    return (txt_mass.sum() / denom).clamp(0.0, 1.0).item()
 
 
 def compute_temporal_affinity(
@@ -255,16 +266,24 @@ def compute_subject_separation(
     subject_a_indices: torch.Tensor,
     subject_b_indices: torch.Tensor,
 ) -> float:
-    """Compute cross-attention between two subjects (lower = better separation)."""
+    """Cross-attention fraction between two subjects (lower = better separation)."""
     if subject_a_indices is None or subject_b_indices is None:
         return 0.0
     if len(subject_a_indices) == 0 or len(subject_b_indices) == 0:
         return 0.0
 
-    a_to_b = attn_weights[:, :, subject_a_indices.unsqueeze(1), subject_b_indices.unsqueeze(0)]
-    b_to_a = attn_weights[:, :, subject_b_indices.unsqueeze(1), subject_a_indices.unsqueeze(0)]
+    a_to_b = attn_weights[:, :, subject_a_indices.unsqueeze(1), subject_b_indices.unsqueeze(0)].sum(
+        dim=-1
+    )
+    b_to_a = attn_weights[:, :, subject_b_indices.unsqueeze(1), subject_a_indices.unsqueeze(0)].sum(
+        dim=-1
+    )
+    a_total = attn_weights[:, :, subject_a_indices, :].sum(dim=-1)
+    b_total = attn_weights[:, :, subject_b_indices, :].sum(dim=-1)
 
-    return (a_to_b.mean() + b_to_a.mean()).item() / 2
+    frac_ab = (a_to_b.sum() / a_total.sum().clamp(min=1e-8)).clamp(0.0, 1.0)
+    frac_ba = (b_to_a.sum() / b_total.sum().clamp(min=1e-8)).clamp(0.0, 1.0)
+    return ((frac_ab + frac_ba) / 2).item()
 
 
 def aggregate_metrics(metrics_list: list[AttentionMetrics]) -> Dict[str, float]:

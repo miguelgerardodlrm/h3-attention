@@ -91,9 +91,13 @@ class H3ControlledAttnProcessor(MiniMaxH3AttnProcessor):
             position_ids = self.controller.state.reference_indices.get("position_ids")
 
             if token_tags is not None and position_ids is not None:
+                # compute_attention_bias/metrics expect [batch, heads, seq, dim];
+                # dispatch uses [batch, seq, heads, dim], so transpose first.
+                query_bh = query.transpose(1, 2)
+                key_bh = key.transpose(1, 2)
                 bias = self.controller.compute_attention_bias(
-                    query=query,
-                    key=key,
+                    query=query_bh,
+                    key=key_bh,
                     token_tags=token_tags,
                     position_ids=position_ids,
                     layer_idx=self.layer_idx,
@@ -104,8 +108,8 @@ class H3ControlledAttnProcessor(MiniMaxH3AttnProcessor):
                     from .metrics import compute_attention_metrics
 
                     metrics = compute_attention_metrics(
-                        query,
-                        key,
+                        query_bh,
+                        key_bh,
                         token_tags,
                         position_ids,
                         bias,
@@ -118,8 +122,16 @@ class H3ControlledAttnProcessor(MiniMaxH3AttnProcessor):
         # We need to add bias to attention scores manually or use a modified dispatch
 
         if bias is not None:
-            # Use custom attention with bias
-            hidden_states = self._attention_with_bias(query, key, value, bias, attention_mask, attn)
+            # Use custom attention with bias (expects [batch, heads, seq, dim])
+            hidden_states = self._attention_with_bias(
+                query.transpose(1, 2),
+                key.transpose(1, 2),
+                value.transpose(1, 2),
+                bias,
+                attention_mask,
+                attn,
+            )
+            hidden_states = hidden_states.transpose(1, 2)  # -> [batch, seq, heads, dim]
         else:
             # Standard dispatch (no control active)
             hidden_states = dispatch_attention_fn(
@@ -265,15 +277,28 @@ class H3AttnProcessorWrapper:
             token_tags = self.controller.state.reference_indices.get("token_tags")
             position_ids = self.controller.state.reference_indices.get("position_ids")
             if token_tags is not None and position_ids is not None:
+                # compute_attention_bias expects [batch, heads, seq, dim]
                 bias = self.controller.compute_attention_bias(
-                    query, key, token_tags, position_ids, self.layer_idx
+                    query.transpose(1, 2),
+                    key.transpose(1, 2),
+                    token_tags,
+                    position_ids,
+                    self.layer_idx,
                 )
 
         # Call base processor with modified query/key/value
         # We need to temporarily replace the processor's internal state
         # Simpler: compute attention ourselves with bias, then call base for output proj
         if bias is not None:
-            hidden_states = self._attention_with_bias(query, key, value, bias, attention_mask, attn)
+            hidden_states = self._attention_with_bias(
+                query.transpose(1, 2),
+                key.transpose(1, 2),
+                value.transpose(1, 2),
+                bias,
+                attention_mask,
+                attn,
+            )
+            hidden_states = hidden_states.transpose(1, 2)  # -> [batch, seq, heads, dim]
         else:
             hidden_states = dispatch_attention_fn(
                 query,

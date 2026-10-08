@@ -14,11 +14,52 @@ import torch.nn as nn
 from contextlib import contextmanager
 
 from .config import AttentionControlConfig, PRESETS
-from .processor import H3ControlledAttnProcessor, H3AttnProcessorWrapper
+
+# diffusers-backed processors. Imported lazily inside install() because
+# processor.py imports this module (circular import at module load), and so
+# that ComfyUI runtimes without diffusers can still use the native path.
+H3ControlledAttnProcessor = None
+H3AttnProcessorWrapper = None
+
+
+def _require_processors():
+    """Import (once) the diffusers-backed processor classes.
+
+    Raises RuntimeError with a clear message when diffusers is unavailable.
+    """
+    global H3ControlledAttnProcessor, H3AttnProcessorWrapper
+    if H3ControlledAttnProcessor is None:
+        try:
+            from .processor import H3ControlledAttnProcessor as _proc
+            from .processor import H3AttnProcessorWrapper as _wrap
+        except ImportError as exc:  # diffusers missing (or broken install)
+            raise RuntimeError(
+                "The Diffusers install path requires the 'diffusers' package "
+                "(pip install diffusers). Inside ComfyUI use install_comfyui() instead."
+            ) from exc
+        H3ControlledAttnProcessor = _proc
+        H3AttnProcessorWrapper = _wrap
+    return H3ControlledAttnProcessor, H3AttnProcessorWrapper
+
+
 from .metrics import AttentionMetrics
 from .scheduler import AttentionSchedule
 
 logger = logging.getLogger(__name__)
+
+
+def _index_tensor(value):
+    """Return ``value`` as a usable integer index tensor, or ``None``.
+
+    Empty tensors (e.g. ``torch.tensor([])`` is float dtype) and float dtypes
+    cannot be used for advanced indexing, so they are normalized here.
+    """
+    if value is None or len(value) == 0:
+        return None
+    if value.dtype != torch.long:
+        value = value.long()
+    return value
+
 
 # Constants from MiniMax H3 (matching diffusers implementation)
 MINIMAX_H3_VIDEO_TAG = 0
@@ -125,6 +166,8 @@ class H3AttentionController:
                 "Expected MiniMaxH3Transformer3DModel with 'transformer_blocks' attribute. "
                 f"Got {type(transformer).__name__}"
             )
+
+        _require_processors()
 
         if self._installed_transformer is not None:
             warnings.warn(
@@ -414,27 +457,24 @@ class H3AttentionController:
         # Find reference vs target regions
         ref_indices = self.state.reference_indices
 
-        if "ref_video" in ref_indices and ref_indices["ref_video"] is not None:
-            ref_vid = ref_indices["ref_video"]
-            # Target video indices (generated portion)
-            tgt_vid = ref_indices["video"]
-            if tgt_vid is not None:
-                # Boost: reference attends to target, target attends to reference
-                strength = self.config.reference_strength
-                if self.config.reference_boost_mode == "additive":
-                    bias[:, :, tgt_vid.unsqueeze(1), ref_vid.unsqueeze(0)] += strength
-                    bias[:, :, ref_vid.unsqueeze(1), tgt_vid.unsqueeze(0)] += strength * 0.5
-                else:
-                    # Multiplicative would be applied differently (scale attention weights)
-                    pass
+        ref_vid = _index_tensor(ref_indices.get("ref_video"))
+        tgt_vid = _index_tensor(ref_indices.get("video"))
+        if ref_vid is not None and tgt_vid is not None:
+            # Boost: reference attends to target, target attends to reference
+            strength = self.config.reference_strength
+            if self.config.reference_boost_mode == "additive":
+                bias[:, :, tgt_vid.unsqueeze(1), ref_vid.unsqueeze(0)] += strength
+                bias[:, :, ref_vid.unsqueeze(1), tgt_vid.unsqueeze(0)] += strength * 0.5
+            else:
+                # Multiplicative would be applied differently (scale attention weights)
+                pass
 
-        if "ref_audio" in ref_indices and ref_indices["ref_audio"] is not None:
-            ref_aud = ref_indices["ref_audio"]
-            tgt_aud = ref_indices["audio"]
-            if tgt_aud is not None:
-                strength = self.config.reference_strength * 0.8
-                if self.config.reference_boost_mode == "additive":
-                    bias[:, :, tgt_aud.unsqueeze(1), ref_aud.unsqueeze(0)] += strength
+        ref_aud = _index_tensor(ref_indices.get("ref_audio"))
+        tgt_aud = _index_tensor(ref_indices.get("audio"))
+        if ref_aud is not None and tgt_aud is not None:
+            strength = self.config.reference_strength * 0.8
+            if self.config.reference_boost_mode == "additive":
+                bias[:, :, tgt_aud.unsqueeze(1), ref_aud.unsqueeze(0)] += strength
 
         return bias
 
@@ -457,11 +497,11 @@ class H3AttentionController:
         identity_idx = self.config.identity_reference_idx
 
         # Use first video reference as identity anchor
-        if "ref_video" in ref_indices and ref_indices["ref_video"] is not None:
-            ref_vid = ref_indices["ref_video"]
+        ref_vid = _index_tensor(ref_indices.get("ref_video"))
+        if ref_vid is not None:
             if len(ref_vid) > identity_idx:
                 anchor_idx = ref_vid[identity_idx : identity_idx + 1]
-                tgt_vid = ref_indices["video"]
+                tgt_vid = _index_tensor(ref_indices.get("video"))
                 if tgt_vid is not None and len(tgt_vid) > 0:
                     strength = self.config.identity_lock
                     # Apply temporal decay
@@ -508,17 +548,17 @@ class H3AttentionController:
 
         ref_indices = self.state.reference_indices
 
-        text_idx = ref_indices.get("text")
-        if text_idx is not None and len(text_idx) > 0:
+        text_idx = _index_tensor(ref_indices.get("text"))
+        if text_idx is not None:
             strength = self.config.prompt_adherence
 
             # Text -> target video
-            tgt_vid = ref_indices.get("video")
+            tgt_vid = _index_tensor(ref_indices.get("video"))
             if tgt_vid is not None:
                 bias[:, :, tgt_vid.unsqueeze(1), text_idx.unsqueeze(0)] += strength
 
             # Text -> target audio
-            tgt_aud = ref_indices.get("audio")
+            tgt_aud = _index_tensor(ref_indices.get("audio"))
             if tgt_aud is not None:
                 bias[:, :, tgt_aud.unsqueeze(1), text_idx.unsqueeze(0)] += strength * 0.8
 
@@ -540,8 +580,8 @@ class H3AttentionController:
         bias = torch.zeros(batch, heads, seq_len, seq_len, device=device, dtype=dtype)
 
         ref_indices = self.state.reference_indices
-        tgt_vid = ref_indices.get("video")
-        tgt_aud = ref_indices.get("audio")
+        tgt_vid = _index_tensor(ref_indices.get("video"))
+        tgt_aud = _index_tensor(ref_indices.get("audio"))
 
         window = self.config.temporal_window
         strength = self.config.temporal_lock
@@ -615,9 +655,9 @@ class H3AttentionController:
 
         ref_indices = self.state.reference_indices
 
-        tgt_vid = ref_indices.get("video")
-        tgt_aud = ref_indices.get("audio")
-        ref_aud = ref_indices.get("ref_audio")
+        tgt_vid = _index_tensor(ref_indices.get("video"))
+        tgt_aud = _index_tensor(ref_indices.get("audio"))
+        ref_aud = _index_tensor(ref_indices.get("ref_audio"))
 
         strength = self.config.audio_strength
 

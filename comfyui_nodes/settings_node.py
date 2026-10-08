@@ -5,7 +5,11 @@ Provides detailed configuration of all attention control mechanisms.
 """
 
 from typing import Dict, Any, Tuple
-from ...h3_attention import PRESETS, AttentionControlConfig
+
+try:
+    from ..h3_attention import PRESETS, AttentionControlConfig
+except ImportError:  # installed as a top-level package (pip)
+    from h3_attention import PRESETS, AttentionControlConfig
 
 
 class H3AttentionSettingsNode:

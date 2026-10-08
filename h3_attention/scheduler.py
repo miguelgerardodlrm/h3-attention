@@ -165,21 +165,31 @@ class AttentionSchedule:
     def linear_decay(cls, start: Dict[str, float], end: Dict[str, float]) -> "AttentionSchedule":
         """Create schedule with linear interpolation between start and end."""
         phases = {}
-        for key in start:
-            phases[SchedulePhase.EARLY] = PhaseConfig(**start)
-            phases[SchedulePhase.LATE] = PhaseConfig(**end)
-            break
+        if start:
+            early = PhaseConfig(**start)
+            early.start_ratio, early.end_ratio = 0.0, 0.5
+            phases[SchedulePhase.EARLY] = early
+        if end:
+            late = PhaseConfig(**end)
+            late.start_ratio, late.end_ratio = 0.5, 1.0
+            phases[SchedulePhase.LATE] = late
         return cls(phases=phases)
 
     @classmethod
     def three_phase(
         cls, early: Dict[str, float], middle: Dict[str, float], late: Dict[str, float]
     ) -> "AttentionSchedule":
-        """Create standard three-phase schedule."""
+        """Create standard three-phase schedule (0-0.33 / 0.33-0.66 / 0.66-1.0)."""
+        e = PhaseConfig(**early)
+        e.start_ratio, e.end_ratio = 0.0, 0.33
+        m = PhaseConfig(**middle)
+        m.start_ratio, m.end_ratio = 0.33, 0.66
+        l = PhaseConfig(**late)
+        l.start_ratio, l.end_ratio = 0.66, 1.0
         phases = {
-            SchedulePhase.EARLY: PhaseConfig(**early),
-            SchedulePhase.MIDDLE: PhaseConfig(**middle),
-            SchedulePhase.LATE: PhaseConfig(**late),
+            SchedulePhase.EARLY: e,
+            SchedulePhase.MIDDLE: m,
+            SchedulePhase.LATE: l,
         }
         return cls(phases=phases)
 

@@ -6,7 +6,11 @@ Captures and visualizes attention metrics during generation.
 
 import json
 from typing import Dict, Any, Tuple, List, Optional
-from ...h3_attention import H3AttentionController, AttentionMetrics
+
+try:
+    from ..h3_attention import H3AttentionController, AttentionMetrics
+except ImportError:  # installed as a top-level package (pip)
+    from h3_attention import H3AttentionController, AttentionMetrics
 
 
 class H3AttentionDebugNode:

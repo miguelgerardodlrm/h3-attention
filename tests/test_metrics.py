@@ -151,9 +151,13 @@ class TestComputeMetrics:
         subject_a = torch.tensor([10, 11, 12])
         subject_b = torch.tensor([20, 21, 22])
 
-        # Low cross-attention = good separation
+        # Low cross-attention relative to within-subject attention = good
+        # separation (rows must carry within-subject mass, otherwise
+        # normalization sends 100% of each row across subjects).
         attn_weights[:, :, subject_a.unsqueeze(1), subject_b.unsqueeze(0)] = 0.1
         attn_weights[:, :, subject_b.unsqueeze(1), subject_a.unsqueeze(0)] = 0.1
+        attn_weights[:, :, subject_a.unsqueeze(1), subject_a.unsqueeze(0)] = 0.7
+        attn_weights[:, :, subject_b.unsqueeze(1), subject_b.unsqueeze(0)] = 0.7
         attn_weights = attn_weights / attn_weights.sum(dim=-1, keepdim=True).clamp(min=1e-8)
 
         separation = compute_subject_separation(attn_weights, subject_a, subject_b)

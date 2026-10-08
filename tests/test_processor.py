@@ -97,7 +97,11 @@ class TestH3ControlledAttnProcessor:
             output = processor(attn, hidden_states, rotary_emb=rotary_emb)
 
             assert output.shape == (1, 100, 512)
-            mock_dispatch.assert_called_once()
+            # With active control the processor takes the manual bias path
+            # (dispatch cannot apply an additive bias), so dispatch is unused.
+            mock_dispatch.assert_not_called()
+            # debug_attention=True records one metrics entry per forward
+            assert len(controller.state.metrics_history) == 1
 
 
 class TestH3AttnProcessorWrapper:
@@ -255,7 +259,10 @@ class TestH3AttentionController:
 
         bias = controller.compute_attention_bias(query, key, token_tags, position_ids, 0)
 
-        assert bias.shape == (1, 8, 100, 100)
+        # When disabled the bias is a broadcastable zero (avoids materializing
+        # a full [B, H, S, S] tensor, which is gigabytes at long sequence lengths).
+        expanded = bias.expand(1, 8, 100, 100)
+        assert expanded.shape == (1, 8, 100, 100)
         assert bias.abs().max() == 0.0  # No bias when disabled
 
     def test_compute_attention_bias_enabled(self):

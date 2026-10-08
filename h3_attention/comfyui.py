@@ -5,6 +5,14 @@ ComfyUI convenience functions for H3 Attention Control.
 from typing import Optional, Any
 from .controller import H3AttentionController, AttentionControlConfig
 from .scheduler import AttentionSchedule
+from .native import install_comfyui, MAX_CONTROLLED_SEQ
+
+__all__ = [
+    "install_controller_on_model",
+    "remove_controller_from_model",
+    "install_comfyui",
+    "MAX_CONTROLLED_SEQ",
+]
 
 
 def install_controller_on_model(
