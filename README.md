@@ -18,6 +18,10 @@
 - **Adaptive mode** — automatically adjusts parameters based on attention metrics
 - **Debug/inspection** — lightweight logging of affinity metrics per layer/step
 
+> **⚠️ Performance note:** Using these attention-control nodes can **significantly slow down video generation** — however, the results will be of **higher quality** (stronger identity preservation, fewer hallucinations, better prompt adherence).
+>
+> **Nota:** El uso de estos nodos de control de atención puede **alentar significativamente la generación de videos**; sin embargo, los resultados serán de **mayor calidad** (preservación de identidad más fuerte, menos alucinaciones y mejor adherencia al prompt).
+
 ## Installation
 
 ```bash
@@ -269,25 +273,6 @@ python examples/benchmark.py \
     --runs 3 \
     --output results.json
 ```
-
-## Experimental Test Cases
-
-### Three-Character Stress Test (Mikhael, Kingpin, Vesper)
-
-**Prompt**: Three characters perform duranguense choreography in same space, maintaining exact identities and clothing from references.
-
-**Observed failure modes without control**:
-
-- Character disappearance
-- Identity mixing (Kingpin gets Mikhael's vest)
-- Clothing changes
-- Invented elements
-- Loss of interaction
-- Temporal drift
-
-### Single-Character Baseline (Mikhael only)
-
-Isolates identity preservation from multi-subject interaction complexity.
 
 ## Limitations & Risks
 
