@@ -102,7 +102,7 @@ Install the package in your ComfyUI environment, then restart ComfyUI. Three nod
 2. **H3 Attention Settings** — Detailed parameter configuration (connects to controller's optional `settings` input)
 3. **H3 Attention Debug** — Captures and logs metrics (connects to controller's optional `debug_node` input)
 
-See `workflows/h3_attention_maximum_coherence.json` for a complete example workflow.
+See `example_workflows/h3_attention_maximum_coherence.json` for a complete example workflow.
 
 ## Control Mechanisms
 
@@ -179,21 +179,43 @@ SCHEDULE_PRESETS = {
 
 ## ComfyUI Workflow
 
-The package includes example workflows in `workflows/`:
+The package includes example workflows in `example_workflows/`:
 
-- **`h3_attention_maximum_coherence.json`** — Full multi-character test with all acceleration methods (LoRA, SageAttn, BlockSwap, TeaCache)
+- **`h3_attention_maximum_coherence.json`** — Full multi-character test (3 reference images) with the acceleration chain (Spectrum, Sage/BlockSparse attention, quantized UNet)
 - **`h3_attention_single_character.json`** — Simplified single-character test for isolating identity vs interaction issues
+
+### Workflow Templates (ComfyUI)
+
+Both workflows appear in ComfyUI's **Workflow → Browse Workflow Templates** (Plantillas) browser, under the `h3-attention` category, because ComfyUI indexes the canonical `example_workflows/` folder of every custom node pack.
+
+For a template to **open** (not just appear), two conditions must hold:
+
+1. The pack loads without errors at ComfyUI startup (watch the console for `h3-attention` import errors).
+2. **Fully restart ComfyUI after `git pull`** — the template file routes are registered only once, at startup.
+
+Verify the endpoint:
+
+```bash
+# 1. Index must list the pack:
+curl -s http://127.0.0.1:8188/api/workflow_templates
+# -> {"h3-attention":["h3_attention_maximum_coherence","h3_attention_single_character"], ...}
+
+# 2. Template file must be served (expect 200, not 404):
+curl -s -o /dev/null -w "%{http_code}\n" \
+  http://127.0.0.1:8188/api/workflow_templates/h3-attention/h3_attention_single_character.json
+```
+
+If step 2 returns `404`, the pack did not load — fix the startup error first (the index lists files on disk even when the pack fails to load, so templates can "appear" while clicking silently does nothing). If both return OK but a click still does nothing, check the browser DevTools (F12) → Network/Console for the failing request.
 
 ### Workflow Structure (Non-Overlapping)
 
 ```
 Model Loading → Acceleration → Attention Control → Conditioning → Sampling → Output
      ↓              ↓               ↓                ↓            ↓         ↓
-Checkpoint   LoRA +         H3Attention    PackageData +   KSampler +  Decode +
-Loader       Attention      Controller +   Conditioning    MiniMaxH3   Save
-             Backend +      Settings +                  DecodeAV
-             BlockSwap +    Debug
-             TeaCache
+ UNETLoader   Spectrum +       H3Attention      MiniMaxH3      Sampler-    VAEDecode +
+              Sage +           Controller +     ReferenceTo    Custom-     CreateVideo +
+              BlockSparse +    Settings +       Video          Advanced    SaveVideo
+              ModelPreview     Debug
 ```
 
 ## Metrics & Debugging
@@ -306,7 +328,7 @@ h3-attention/
 │   ├── test_processor.py
 │   ├── test_metrics.py
 │   └── test_integration.py
-├── workflows/
+├── example_workflows/
 │   ├── h3_attention_maximum_coherence.json
 │   └── h3_attention_single_character.json
 ├── examples/

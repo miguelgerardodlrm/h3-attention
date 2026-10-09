@@ -23,7 +23,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT_DIR = ROOT / "workflows"
+OUT_DIR = ROOT / "example_workflows"
 
 UNET_NAME = "minimax_h3_ref2va_pruned_int8_convrot.safetensors"
 CLIP_NAME = "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors"

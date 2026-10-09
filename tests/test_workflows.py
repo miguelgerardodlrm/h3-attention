@@ -1,4 +1,4 @@
-"""Structural validation of the example workflows (workflows/*.json).
+"""Structural validation of the example workflows (example_workflows/*.json).
 
 Checks the LiteGraph serialization format, link/slot consistency, node
 whitelist, acyclicity, and the h3-attention-specific wiring (Settings and
@@ -12,7 +12,7 @@ import pytest
 
 from h3_attention import PRESETS
 
-WF_DIR = Path(__file__).resolve().parent.parent / "workflows"
+WF_DIR = Path(__file__).resolve().parent.parent / "example_workflows"
 
 WORKFLOWS = {
     "maximum_coherence": WF_DIR / "h3_attention_maximum_coherence.json",
@@ -80,6 +80,27 @@ def sole(wf, type_):
 @pytest.fixture(params=sorted(WORKFLOWS))
 def wf(request):
     return load(request.param), request.param
+
+
+class TestTemplateFolder:
+    """ComfyUI's template browser indexes example_workflows/ (single level, JSON only).
+
+    The index endpoint globs custom_nodes/*/<folder>/*.json, so extra files or
+    nested directories here would either never show up or show up broken.
+    """
+
+    def test_single_level_json_only(self):
+        assert WF_DIR.is_dir(), f"canonical template folder missing: {WF_DIR}"
+        for path in WF_DIR.iterdir():
+            assert path.is_file(), f"nested entries unsupported by ComfyUI: {path.name}"
+            assert path.suffix in {".json", ".jpg"}, f"unexpected file: {path.name}"
+
+    def test_exactly_the_two_templates(self):
+        found = sorted(p.name for p in WF_DIR.glob("*.json"))
+        assert found == [
+            "h3_attention_maximum_coherence.json",
+            "h3_attention_single_character.json",
+        ]
 
 
 class TestFormat:
