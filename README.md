@@ -2,6 +2,8 @@
 
 **Attention control for MiniMax H3 inference** — reduce hallucination, identity drift, reference loss, and prompt deviation without retraining.
 
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20the%20project-ff5f5f?logo=ko-fi&logoColor=white)](https://ko-fi.com/miguelgerardodlrm)
+
 ## Overview
 
 `h3-attention` is an experimental Python package that intercepts and modifies the attention patterns of MiniMax H3 during inference. It works by replacing/wrapping the `MiniMaxH3AttnProcessor` in each transformer block, allowing configurable control over how different modalities (text, video, audio, references) attend to each other.
@@ -370,3 +372,9 @@ If you use this in research, please cite:
 - ComfyUI community for native H3 nodes
 - HyperFlow-Sol for Sol-attn implementation
 - SageAttention authors for efficient attention kernels
+
+## Support
+
+If you enjoy using `h3-attention`, you can support its development with a coffee ☕ — it keeps the experiments, workflows, and fixes coming. It's completely optional; just using the project already means a lot. ¡Gracias de antemano!
+
+<a href="https://ko-fi.com/miguelgerardodlrm"><img src="https://cdn.ko-fi.com/cdn/kofibtn.svg" height="46" alt="Buy Me a Coffee at Ko-fi"></a>
