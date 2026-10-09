@@ -10,12 +10,10 @@ readme = "README.md"
 license = {text = "Apache-2.0"}
 requires-python = ">=3.10"
 dependencies = [
-    "torch>=2.0",
-    "diffusers>=0.30",
-    "transformers>=4.40",
-    "accelerate>=0.30",
-    "numpy",
-    "einops",
+    "torch>=2.4.0",
+    "diffusers>=0.41.0",
+    "transformers>=5.0.0",
+    "accelerate>=0.31.0",
 ]
 
 [project.optional-dependencies]
@@ -25,20 +23,13 @@ dev = [
     "ruff",
     "mypy",
 ]
-comfyui = [
-    "comfyui>=0.3.0",
-]
 sage = [
     "sageattention>=0.1.0",
 ]
-sol = [
-    "hyperflow-h3 @ git+https://github.com/HyperFlow-Sol/HyperFlow-H3.git",
-]
 
-[project.entry-points."comfyui.nodes"]
-h3_attention_controller = "comfyui_nodes.controller_node:H3AttentionControllerNode"
-h3_attention_settings = "comfyui_nodes.settings_node:H3AttentionSettingsNode"
-h3_attention_debug = "comfyui_nodes.debug_node:H3AttentionDebugNode"
+[project.urls]
+Repository = "https://github.com/miguelgerardodlrm/h3-attention"
+Issues = "https://github.com/miguelgerardodlrm/h3-attention/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]

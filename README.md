@@ -26,12 +26,9 @@
 
 ```bash
 # From source
-git clone https://github.com/your-repo/h3-attention.git
+git clone https://github.com/miguelgerardodlrm/h3-attention.git
 cd h3-attention
 pip install -e .
-
-# With ComfyUI support
-pip install -e .[comfyui]
 
 # With SageAttn support
 pip install -e .[sage]
@@ -39,6 +36,8 @@ pip install -e .[sage]
 # Development
 pip install -e .[dev]
 ```
+
+> **ComfyUI users:** the simplest install is cloning this repository directly into `ComfyUI/custom_nodes/` (see [ComfyUI Nodes](#comfyui-nodes)) — a ComfyUI environment already includes diffusers and torch, so no `pip install` is usually needed.
 
 ## Quick Start
 
@@ -102,7 +101,7 @@ controller = H3AttentionController(preset="maximum_coherence", schedule=schedule
 
 ### ComfyUI Nodes
 
-Install the package in your ComfyUI environment, then restart ComfyUI. Three nodes will be available under **MiniMax H3/Attention**:
+Clone this repository into `ComfyUI/custom_nodes/` (or `pip install -e .` using the same Python environment ComfyUI runs on), then fully restart ComfyUI. Three nodes will be available under **MiniMax H3/Attention**:
 
 1. **H3 Attention Controller** — Main node, connects between model loader and sampler
 2. **H3 Attention Settings** — Detailed parameter configuration (connects to controller's optional `settings` input)
@@ -189,6 +188,23 @@ The package includes example workflows in `example_workflows/`:
 
 - **`h3_attention_maximum_coherence.json`** — Full multi-character test (3 reference images) with the acceleration chain (Spectrum, Sage/BlockSparse attention, quantized UNet)
 - **`h3_attention_single_character.json`** — Simplified single-character test for isolating identity vs interaction issues
+
+### Required Models
+
+The templates expect MiniMax H3 weights in ComfyUI's `models/` folders. Two sources work:
+
+**1. Official checkpoints (recommended)** — [Comfy-Org/MiniMax-H3](https://huggingface.co/Comfy-Org/MiniMax-H3) on Hugging Face, the official ComfyUI repackaging of [MiniMaxAI/MiniMax-H3](https://huggingface.co/MiniMaxAI/MiniMax-H3) (full guide: [ComfyUI MiniMax H3 tutorial](https://docs.comfy.org/tutorials/video/minimax/minimax-h3)). The files used by these templates:
+
+| File (Hugging Face repo)                                             | Destination                |
+| -------------------------------------------------------------------- | -------------------------- |
+| `diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors` | `models/diffusion_models/` |
+| `text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors`         | `models/text_encoders/`    |
+| `vae/minimax_h3_video_vae_fp16.safetensors`                          | `models/vae/`              |
+| `vae/minimax_h3_audio_vae_fp32.safetensors`                          | `models/vae/`              |
+
+bf16 counterparts of every file are available in the same repo if you have more VRAM.
+
+**2. Singularity variant (community fine-tune)** — [Minimax-h3_Singularity](https://civitai.com/models/2917208/minimax-h3singularity) on Civitai (`Minimax-h3_Singularity_ref2va_v1.3_int8.safetensors`, ~31.7 GB): a ref2va fine-tune fusion (cleaner skin rendering, stronger motion/VFX). Place it in `models/diffusion_models/` and select it in the UNETLoader — the text encoder and VAEs above stay the same. It pairs well with the `minimax_h3_ref2v_turbo_4step` LoRA (lightx2v) for turbo generation, though these templates default to the quality baseline (beta scheduler, 20 steps, no turbo).
 
 ### Workflow Templates (ComfyUI)
 
@@ -327,11 +343,11 @@ h3-attention/
 ## Requirements
 
 - Python ≥ 3.10
-- PyTorch ≥ 2.0 (with CUDA)
-- Diffusers ≥ 0.30 (Modular Pipeline support)
-- Transformers ≥ 4.40
-- Accelerate ≥ 0.30
-- ComfyUI ≥ 0.3.0 (for nodes)
+- PyTorch ≥ 2.4 (with CUDA)
+- Diffusers ≥ 0.41 (MiniMax H3 modules; developed with 0.41.0)
+- Transformers ≥ 5.0 (developed with 5.19.0)
+- Accelerate ≥ 0.31
+- ComfyUI ≥ 0.31 (for nodes; native MiniMax H3 support since v0.30)
 
 ## License
 
@@ -344,9 +360,9 @@ If you use this in research, please cite:
 ```bibtex
 @software{h3_attention,
   title = {h3-attention: Attention Control for MiniMax H3},
-  author = {Your Name},
-  year = {2025},
-  url = {https://github.com/your-repo/h3-attention}
+  author = {miguelgerardodlrm},
+  year = {2026},
+  url = {https://github.com/miguelgerardodlrm/h3-attention}
 }
 ```
 
