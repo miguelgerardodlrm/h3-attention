@@ -1,8 +1,8 @@
 {
   "id": "h3-attention-maximum-coherence",
   "revision": 0,
-  "last_node_id": 25,
-  "last_link_id": 30,
+  "last_node_id": 28,
+  "last_link_id": 34,
   "nodes": [
     {
       "id": 1,
@@ -628,6 +628,30 @@
           "shape": 7,
           "label": "ref_image_2",
           "link": 14
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": 31
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": 32
+        },
+        {
+          "name": "length",
+          "type": "INT",
+          "widget": {
+            "name": "length"
+          },
+          "link": 34
         }
       ],
       "outputs": [
@@ -650,7 +674,7 @@
         "Node name for S&R": "MiniMaxH3ReferenceToVideo"
       },
       "widgets_values": [
-        "subject_definitions:\n<Picture 1> is Mikhael, tall male with silver hair, black tactical vest, dark cargo pants, combat boots.\n<Picture 2> is Kingpin, massive bald male in white suit, gold accessories, cane.\n<Picture 3> is Vesper, athletic female with red hair in ponytail, leather jacket, jeans.\n\nsummary:\nThree characters dance duranguense together in a cantina. Mikhael leads with precise footwork, Kingpin moves with surprising grace despite size, Vesper spins between them. All maintain exact clothing and identity from references. Camera circles the trio at eye level. Energetic norteno music with accordion and bajo sexto.",
+        "",
         1344,
         768,
         124,
@@ -1051,6 +1075,139 @@
         "Node name for S&R": "PreviewImage"
       },
       "widgets_values": []
+    },
+    {
+      "id": 26,
+      "type": "ResolutionSelector",
+      "pos": [
+        -350,
+        1400
+      ],
+      "size": [
+        315,
+        170
+      ],
+      "flags": {},
+      "order": 25,
+      "mode": 0,
+      "showAdvanced": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            31
+          ]
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            32
+          ]
+        }
+      ],
+      "title": "Resolution Selector (Size)",
+      "properties": {
+        "Node name for S&R": "ResolutionSelector"
+      },
+      "widgets_values": [
+        "16:9 (Widescreen)",
+        0.98,
+        32
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 27,
+      "type": "PrimitiveFloat",
+      "pos": [
+        -350,
+        1650
+      ],
+      "size": [
+        315,
+        70
+      ],
+      "flags": {},
+      "order": 26,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "FLOAT",
+          "type": "FLOAT",
+          "links": [
+            33
+          ]
+        }
+      ],
+      "title": "Float (Duration seconds)",
+      "properties": {
+        "Node name for S&R": "PrimitiveFloat"
+      },
+      "widgets_values": [
+        5
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 28,
+      "type": "ComfyMathExpression",
+      "pos": [
+        0,
+        1650
+      ],
+      "size": [
+        315,
+        120
+      ],
+      "flags": {},
+      "order": 27,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "a",
+          "name": "values.a",
+          "type": "FLOAT,INT,BOOLEAN",
+          "link": 33
+        },
+        {
+          "label": "b",
+          "name": "values.b",
+          "shape": 7,
+          "type": "FLOAT,INT,BOOLEAN",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "FLOAT",
+          "type": "FLOAT",
+          "links": null
+        },
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            34
+          ]
+        },
+        {
+          "name": "BOOL",
+          "type": "BOOLEAN",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ComfyMathExpression"
+      },
+      "widgets_values": [
+        "max(5, round(a * 24)) + (5 - (max(5, round(a * 24)) % 17)) % 17"
+      ]
     }
   ],
   "links": [
@@ -1293,6 +1450,38 @@
       25,
       0,
       "IMAGE"
+    ],
+    [
+      31,
+      26,
+      0,
+      15,
+      6,
+      "INT"
+    ],
+    [
+      32,
+      26,
+      1,
+      15,
+      7,
+      "INT"
+    ],
+    [
+      33,
+      27,
+      0,
+      28,
+      0,
+      "FLOAT"
+    ],
+    [
+      34,
+      28,
+      1,
+      15,
+      8,
+      "INT"
     ]
   ],
   "groups": [],

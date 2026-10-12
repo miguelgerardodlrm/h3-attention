@@ -1,8 +1,8 @@
 {
   "id": "h3-attention-single-character",
   "revision": 0,
-  "last_node_id": 23,
-  "last_link_id": 28,
+  "last_node_id": 26,
+  "last_link_id": 32,
   "nodes": [
     {
       "id": 1,
@@ -540,6 +540,30 @@
           "shape": 7,
           "label": "ref_image_0",
           "link": 12
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": 29
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": 30
+        },
+        {
+          "name": "length",
+          "type": "INT",
+          "widget": {
+            "name": "length"
+          },
+          "link": 32
         }
       ],
       "outputs": [
@@ -562,7 +586,7 @@
         "Node name for S&R": "MiniMaxH3ReferenceToVideo"
       },
       "widgets_values": [
-        "subject_definitions:\n<Picture 1> is Mikhael, tall male with silver hair, black tactical vest, dark cargo pants, combat boots.\n\nsummary:\nMikhael performs a solo duranguense dance in a cantina. Precise footwork, confident posture, silver hair catching the light. Camera circles at eye level. Energetic norteno music with accordion and bajo sexto.",
+        "",
         1344,
         768,
         124,
@@ -963,6 +987,139 @@
         "Node name for S&R": "PreviewImage"
       },
       "widgets_values": []
+    },
+    {
+      "id": 24,
+      "type": "ResolutionSelector",
+      "pos": [
+        -350,
+        1400
+      ],
+      "size": [
+        315,
+        170
+      ],
+      "flags": {},
+      "order": 23,
+      "mode": 0,
+      "showAdvanced": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            29
+          ]
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            30
+          ]
+        }
+      ],
+      "title": "Resolution Selector (Size)",
+      "properties": {
+        "Node name for S&R": "ResolutionSelector"
+      },
+      "widgets_values": [
+        "16:9 (Widescreen)",
+        0.98,
+        32
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 25,
+      "type": "PrimitiveFloat",
+      "pos": [
+        -350,
+        1650
+      ],
+      "size": [
+        315,
+        70
+      ],
+      "flags": {},
+      "order": 24,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "FLOAT",
+          "type": "FLOAT",
+          "links": [
+            31
+          ]
+        }
+      ],
+      "title": "Float (Duration seconds)",
+      "properties": {
+        "Node name for S&R": "PrimitiveFloat"
+      },
+      "widgets_values": [
+        5
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 26,
+      "type": "ComfyMathExpression",
+      "pos": [
+        0,
+        1650
+      ],
+      "size": [
+        315,
+        120
+      ],
+      "flags": {},
+      "order": 25,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "a",
+          "name": "values.a",
+          "type": "FLOAT,INT,BOOLEAN",
+          "link": 31
+        },
+        {
+          "label": "b",
+          "name": "values.b",
+          "shape": 7,
+          "type": "FLOAT,INT,BOOLEAN",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "FLOAT",
+          "type": "FLOAT",
+          "links": null
+        },
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            32
+          ]
+        },
+        {
+          "name": "BOOL",
+          "type": "BOOLEAN",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ComfyMathExpression"
+      },
+      "widgets_values": [
+        "max(5, round(a * 24)) + (5 - (max(5, round(a * 24)) % 17)) % 17"
+      ]
     }
   ],
   "links": [
@@ -1189,6 +1346,38 @@
       23,
       0,
       "IMAGE"
+    ],
+    [
+      29,
+      24,
+      0,
+      13,
+      4,
+      "INT"
+    ],
+    [
+      30,
+      24,
+      1,
+      13,
+      5,
+      "INT"
+    ],
+    [
+      31,
+      25,
+      0,
+      26,
+      0,
+      "FLOAT"
+    ],
+    [
+      32,
+      26,
+      1,
+      13,
+      6,
+      "INT"
     ]
   ],
   "groups": [],
