@@ -1,8 +1,8 @@
 {
   "id": "h3-attention-single-character",
   "revision": 0,
-  "last_node_id": 29,
-  "last_link_id": 37,
+  "last_node_id": 30,
+  "last_link_id": 38,
   "nodes": [
     {
       "id": 1,
@@ -1215,11 +1215,52 @@
       "bgcolor": "#533"
     },
     {
+      "id": 30,
+      "type": "LTXVSeparateAVLatent",
+      "pos": [
+        2860,
+        400
+      ],
+      "size": [
+        286,
+        48
+      ],
+      "flags": {},
+      "order": 29,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "av_latent",
+          "type": "LATENT",
+          "link": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video_latent",
+          "type": "LATENT",
+          "links": [
+            38
+          ]
+        },
+        {
+          "name": "audio_latent",
+          "type": "LATENT",
+          "links": [
+            22
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LTXVSeparateAVLatent"
+      }
+    },
+    {
       "id": 29,
       "type": "MinimaxH3LatentUpscaler3D",
       "pos": [
         2860,
-        100
+        650
       ],
       "size": [
         315,
@@ -1433,14 +1474,14 @@
       21,
       18,
       0,
-      29,
+      30,
       0,
       "LATENT"
     ],
     [
       22,
-      18,
-      0,
+      30,
+      1,
       20,
       0,
       "LATENT"
@@ -1562,6 +1603,14 @@
       29,
       0,
       19,
+      0,
+      "LATENT"
+    ],
+    [
+      38,
+      30,
+      0,
+      29,
       0,
       "LATENT"
     ]

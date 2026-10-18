@@ -1,8 +1,8 @@
 {
   "id": "h3-attention-maximum-coherence",
   "revision": 0,
-  "last_node_id": 31,
-  "last_link_id": 39,
+  "last_node_id": 32,
+  "last_link_id": 40,
   "nodes": [
     {
       "id": 1,
@@ -1307,7 +1307,7 @@
       "type": "MinimaxH3LatentUpscaler3D",
       "pos": [
         2860,
-        100
+        650
       ],
       "size": [
         315,
@@ -1320,7 +1320,7 @@
         {
           "name": "latent",
           "type": "LATENT",
-          "link": 23
+          "link": 40
         },
         {
           "name": "mode.megapixels",
@@ -1354,6 +1354,47 @@
         "cuda",
         "fp16"
       ]
+    },
+    {
+      "id": 32,
+      "type": "LTXVSeparateAVLatent",
+      "pos": [
+        2860,
+        400
+      ],
+      "size": [
+        286,
+        48
+      ],
+      "flags": {},
+      "order": 31,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "av_latent",
+          "type": "LATENT",
+          "link": 23
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video_latent",
+          "type": "LATENT",
+          "links": [
+            40
+          ]
+        },
+        {
+          "name": "audio_latent",
+          "type": "LATENT",
+          "links": [
+            24
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LTXVSeparateAVLatent"
+      }
     }
   ],
   "links": [
@@ -1537,14 +1578,14 @@
       23,
       20,
       0,
-      31,
+      32,
       0,
       "LATENT"
     ],
     [
       24,
-      20,
-      0,
+      32,
+      1,
       22,
       0,
       "LATENT"
@@ -1666,6 +1707,14 @@
       31,
       0,
       21,
+      0,
+      "LATENT"
+    ],
+    [
+      40,
+      32,
+      0,
+      31,
       0,
       "LATENT"
     ]
