@@ -1,8 +1,8 @@
 {
   "id": "h3-attention-single-character",
   "revision": 0,
-  "last_node_id": 27,
-  "last_link_id": 35,
+  "last_node_id": 29,
+  "last_link_id": 37,
   "nodes": [
     {
       "id": 1,
@@ -814,7 +814,7 @@
         {
           "name": "samples",
           "type": "LATENT",
-          "link": 21
+          "link": 37
         },
         {
           "name": "vae",
@@ -1179,6 +1179,93 @@
         {},
         ""
       ]
+    },
+    {
+      "id": 28,
+      "type": "PrimitiveFloat",
+      "pos": [
+        -350,
+        2100
+      ],
+      "size": [
+        315,
+        70
+      ],
+      "flags": {},
+      "order": 27,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "FLOAT",
+          "type": "FLOAT",
+          "links": [
+            36
+          ]
+        }
+      ],
+      "title": "Float (Target Megapixels)",
+      "properties": {
+        "Node name for S&R": "PrimitiveFloat"
+      },
+      "widgets_values": [
+        1.0
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 29,
+      "type": "MinimaxH3LatentUpscaler3D",
+      "pos": [
+        2860,
+        100
+      ],
+      "size": [
+        315,
+        200
+      ],
+      "flags": {},
+      "order": 28,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "latent",
+          "type": "LATENT",
+          "link": 21
+        },
+        {
+          "name": "mode.megapixels",
+          "type": "FLOAT",
+          "widget": {
+            "name": "mode.megapixels"
+          },
+          "link": 36
+        }
+      ],
+      "outputs": [
+        {
+          "name": "latent",
+          "type": "LATENT",
+          "links": [
+            37
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MinimaxH3LatentUpscaler3D"
+      },
+      "widgets_values": [
+        "minimax_h3_latent_upscaler_3d_fp16.safetensors",
+        "target dimensions",
+        1280,
+        704,
+        32,
+        false,
+        true,
+        "cuda",
+        "fp16"
+      ]
     }
   ],
   "links": [
@@ -1346,7 +1433,7 @@
       21,
       18,
       0,
-      19,
+      29,
       0,
       "LATENT"
     ],
@@ -1461,6 +1548,22 @@
       5,
       0,
       "MODEL"
+    ],
+    [
+      36,
+      28,
+      0,
+      29,
+      1,
+      "FLOAT"
+    ],
+    [
+      37,
+      29,
+      0,
+      19,
+      0,
+      "LATENT"
     ]
   ],
   "groups": [],
