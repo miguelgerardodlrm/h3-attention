@@ -1,8 +1,8 @@
 {
   "id": "h3-attention-maximum-coherence",
   "revision": 0,
-  "last_node_id": 32,
-  "last_link_id": 40,
+  "last_node_id": 36,
+  "last_link_id": 48,
   "nodes": [
     {
       "id": 1,
@@ -448,7 +448,9 @@
           "type": "MODEL",
           "links": [
             15,
-            17
+            17,
+            41,
+            43
           ]
         },
         {
@@ -659,7 +661,8 @@
           "name": "CONDITIONING",
           "type": "CONDITIONING",
           "links": [
-            16
+            16,
+            42
           ]
         },
         {
@@ -812,7 +815,8 @@
           "name": "SAMPLER",
           "type": "SAMPLER",
           "links": [
-            20
+            20,
+            46
           ]
         }
       ],
@@ -902,7 +906,7 @@
         {
           "name": "samples",
           "type": "LATENT",
-          "link": 39
+          "link": 48
         },
         {
           "name": "vae",
@@ -1292,12 +1296,12 @@
           ]
         }
       ],
-      "title": "Float (Target Megapixels)",
+      "title": "Float (Scale Multiplier)",
       "properties": {
         "Node name for S&R": "PrimitiveFloat"
       },
       "widgets_values": [
-        1.0
+        2.0
       ],
       "color": "#322",
       "bgcolor": "#533"
@@ -1323,7 +1327,7 @@
           "link": 40
         },
         {
-          "name": "mode.megapixels",
+          "name": "mode.scale",
           "type": "FLOAT",
           "widget": {
             "name": "mode.megapixels"
@@ -1345,7 +1349,7 @@
       },
       "widgets_values": [
         "minimax_h3_latent_upscaler_3d_fp16.safetensors",
-        "target dimensions",
+        "scale by multiplier",
         1280,
         704,
         32,
@@ -1395,6 +1399,177 @@
       "properties": {
         "Node name for S&R": "LTXVSeparateAVLatent"
       }
+    },
+    {
+      "id": 33,
+      "type": "BasicGuider",
+      "pos": [
+        3060,
+        1000
+      ],
+      "size": [
+        315,
+        130
+      ],
+      "flags": {},
+      "order": 32,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 41
+        },
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 42
+        }
+      ],
+      "outputs": [
+        {
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "links": [
+            45
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicGuider (2nd Pass)"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 34,
+      "type": "BasicScheduler",
+      "pos": [
+        3060,
+        1200
+      ],
+      "size": [
+        315,
+        160
+      ],
+      "flags": {},
+      "order": 33,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 43
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            47
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicScheduler (2nd Pass)"
+      },
+      "widgets_values": [
+        "beta",
+        20,
+        1.0
+      ]
+    },
+    {
+      "id": 35,
+      "type": "RandomNoise",
+      "pos": [
+        3060,
+        1430
+      ],
+      "size": [
+        315,
+        140
+      ],
+      "flags": {},
+      "order": 34,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            44
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RandomNoise (2nd Pass)"
+      },
+      "widgets_values": [
+        42,
+        "fixed"
+      ]
+    },
+    {
+      "id": 36,
+      "type": "SamplerCustomAdvanced",
+      "pos": [
+        3440,
+        1300
+      ],
+      "size": [
+        330,
+        180
+      ],
+      "flags": {},
+      "order": 35,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise",
+          "type": "NOISE",
+          "link": 44
+        },
+        {
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 45
+        },
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 46
+        },
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 47
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 39
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            48
+          ]
+        },
+        {
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SamplerCustomAdvanced (2nd Pass)"
+      },
+      "widgets_values": []
     }
   ],
   "links": [
@@ -1706,8 +1881,8 @@
       39,
       31,
       0,
-      21,
-      0,
+      36,
+      4,
       "LATENT"
     ],
     [
@@ -1715,6 +1890,70 @@
       32,
       0,
       31,
+      0,
+      "LATENT"
+    ],
+    [
+      41,
+      11,
+      0,
+      33,
+      0,
+      "MODEL"
+    ],
+    [
+      42,
+      15,
+      0,
+      33,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      43,
+      11,
+      0,
+      34,
+      0,
+      "MODEL"
+    ],
+    [
+      44,
+      35,
+      0,
+      36,
+      0,
+      "NOISE"
+    ],
+    [
+      45,
+      33,
+      0,
+      36,
+      1,
+      "GUIDER"
+    ],
+    [
+      46,
+      19,
+      0,
+      36,
+      2,
+      "SAMPLER"
+    ],
+    [
+      47,
+      34,
+      0,
+      36,
+      3,
+      "SIGMAS"
+    ],
+    [
+      48,
+      36,
+      0,
+      21,
       0,
       "LATENT"
     ]
