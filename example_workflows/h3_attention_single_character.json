@@ -1,8 +1,8 @@
 {
   "id": "h3-attention-single-character",
   "revision": 0,
-  "last_node_id": 26,
-  "last_link_id": 32,
+  "last_node_id": 27,
+  "last_link_id": 35,
   "nodes": [
     {
       "id": 1,
@@ -152,7 +152,7 @@
         {
           "name": "model",
           "type": "MODEL",
-          "link": 1
+          "link": 35
         }
       ],
       "outputs": [
@@ -1120,6 +1120,65 @@
       "widgets_values": [
         "max(5, round(a * 24)) + (5 - (max(5, round(a * 24)) % 17)) % 17"
       ]
+    },
+    {
+      "id": 27,
+      "type": "Power Lora Loader (rgthree)",
+      "pos": [
+        -350,
+        1900
+      ],
+      "size": [
+        520,
+        240
+      ],
+      "flags": {},
+      "order": 26,
+      "mode": 0,
+      "inputs": [
+        {
+          "dir": 3,
+          "name": "model",
+          "type": "MODEL",
+          "link": 33
+        },
+        {
+          "dir": 3,
+          "name": "clip",
+          "type": "CLIP",
+          "link": 34
+        }
+      ],
+      "outputs": [
+        {
+          "dir": 4,
+          "name": "MODEL",
+          "shape": 3,
+          "type": "MODEL",
+          "links": [
+            35
+          ]
+        },
+        {
+          "dir": 4,
+          "name": "CLIP",
+          "shape": 3,
+          "type": "CLIP",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Show Strengths": "Single Strength",
+        "Match": ""
+      },
+      "widgets_values": [
+        {},
+        {
+          "type": "PowerLoraLoaderHeaderWidget"
+        },
+        {},
+        ""
+      ]
     }
   ],
   "links": [
@@ -1127,7 +1186,7 @@
       1,
       1,
       0,
-      5,
+      27,
       0,
       "MODEL"
     ],
@@ -1378,6 +1437,30 @@
       13,
       6,
       "INT"
+    ],
+    [
+      33,
+      1,
+      0,
+      27,
+      0,
+      "MODEL"
+    ],
+    [
+      34,
+      2,
+      0,
+      27,
+      1,
+      "CLIP"
+    ],
+    [
+      35,
+      27,
+      0,
+      5,
+      0,
+      "MODEL"
     ]
   ],
   "groups": [],
