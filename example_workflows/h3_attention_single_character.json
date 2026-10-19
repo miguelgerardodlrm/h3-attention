@@ -1,8 +1,8 @@
 {
   "id": "h3-attention-single-character",
   "revision": 0,
-  "last_node_id": 32,
-  "last_link_id": 45,
+  "last_node_id": 34,
+  "last_link_id": 49,
   "nodes": [
     {
       "id": 1,
@@ -572,7 +572,8 @@
           "name": "CONDITIONING",
           "type": "CONDITIONING",
           "links": [
-            14
+            14,
+            47
           ]
         },
         {
@@ -625,8 +626,7 @@
           "name": "GUIDER",
           "type": "GUIDER",
           "links": [
-            17,
-            44
+            17
           ]
         }
       ],
@@ -727,8 +727,7 @@
           "name": "SAMPLER",
           "type": "SAMPLER",
           "links": [
-            18,
-            45
+            18
           ]
         }
       ],
@@ -1159,7 +1158,8 @@
           "shape": 3,
           "type": "MODEL",
           "links": [
-            35
+            35,
+            46
           ]
         },
         {
@@ -1376,12 +1376,12 @@
         {
           "name": "guider",
           "type": "GUIDER",
-          "link": 44
+          "link": 48
         },
         {
           "name": "sampler",
           "type": "SAMPLER",
-          "link": 45
+          "link": 49
         },
         {
           "name": "sigmas",
@@ -1411,6 +1411,77 @@
       ],
       "properties": {
         "Node name for S&R": "SamplerCustomAdvanced"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 33,
+      "type": "KSamplerSelect",
+      "pos": [
+        -350,
+        2150
+      ],
+      "size": [
+        315,
+        100
+      ],
+      "flags": {},
+      "order": 32,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            49
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSamplerSelect"
+      },
+      "widgets_values": [
+        "euler"
+      ]
+    },
+    {
+      "id": 34,
+      "type": "BasicGuider",
+      "pos": [
+        -350,
+        2350
+      ],
+      "size": [
+        315,
+        130
+      ],
+      "flags": {},
+      "order": 33,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 46
+        },
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 47
+        }
+      ],
+      "outputs": [
+        {
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "links": [
+            48
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicGuider"
       },
       "widgets_values": []
     }
@@ -1753,16 +1824,32 @@
       "NOISE"
     ],
     [
-      44,
-      14,
+      46,
+      27,
+      0,
+      34,
+      0,
+      "MODEL"
+    ],
+    [
+      47,
+      13,
+      0,
+      34,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      48,
+      34,
       0,
       32,
       1,
       "GUIDER"
     ],
     [
-      45,
-      17,
+      49,
+      33,
       0,
       32,
       2,
