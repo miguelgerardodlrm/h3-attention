@@ -32,7 +32,7 @@
         "Node name for S&R": "UNETLoader"
       },
       "widgets_values": [
-        "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+        "Minimax-h3_Singularity_ref2va_Pruned_v1.3_int8.safetensors",
         "default"
       ]
     },
@@ -171,11 +171,11 @@
       "widgets_values": [
         true,
         0.5,
-        4,
+        1,
         0.1,
         2,
         0.75,
-        5,
+        1,
         1,
         8,
         false,
@@ -670,7 +670,7 @@
       },
       "widgets_values": [
         "beta",
-        20,
+        6,
         1.0
       ]
     },
@@ -1028,7 +1028,7 @@
       },
       "widgets_values": [
         "16:9 (Widescreen)",
-        0.98,
+        0.5,
         32
       ],
       "color": "#322",
@@ -1179,6 +1179,12 @@
         {
           "type": "PowerLoraLoaderHeaderWidget"
         },
+        {
+          "on": true,
+          "lora": "minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors",
+          "strength": 1,
+          "strengthTwo": null
+        },
         {},
         ""
       ]
@@ -1224,7 +1230,7 @@
         "Node name for S&R": "SplitSigmas"
       },
       "widgets_values": [
-        13
+        6
       ]
     },
     {
